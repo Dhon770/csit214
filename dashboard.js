@@ -1,6 +1,8 @@
 function todaystring() {
   const d = new Date();
-  return d.toISOString().substring(0, 10);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() + "-" + mm + "-" + dd;
 }
 
 function renderdashboard() {
