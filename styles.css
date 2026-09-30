@@ -343,3 +343,151 @@ textarea {
   padding: var(--spacing6);
   color: var(--color-text-muted);
 }
+
+.filterbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing3);
+  align-items: flex-end;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--spacing4);
+  margin-bottom: var(--spacing5);
+}
+
+.filterfield {
+  flex: 1;
+  min-width: 160px;
+}
+
+.filterfield label {
+  margin-bottom: var(--spacing1);
+}
+
+.filterfield input,
+.filterfield select {
+  margin-bottom: 0;
+}
+
+.resourcelayout {
+  display: grid;
+  grid-template-columns: minmax(260px, 380px) 1fr;
+  gap: var(--spacing4);
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .resourcelayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.resourcelist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing3);
+}
+
+.resourceitem {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--spacing3);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-family: var(--font);
+}
+
+.resourceitem:hover {
+  border-color: var(--color-steel-light);
+}
+
+.resourceitem.selected {
+  border-color: var(--color-steel);
+  box-shadow: 0 0 0 1px var(--color-steel);
+}
+
+.resourcename {
+  font-weight: 600;
+  color: var(--color-navy);
+  margin-bottom: var(--spacing1);
+}
+
+.resourcemeta {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing2);
+}
+
+.detailpanel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--spacing4);
+  min-height: 200px;
+}
+
+.calendarheader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing3);
+}
+
+.calendargrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: var(--spacing4);
+}
+
+.calendarweekday {
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  padding-bottom: var(--spacing1);
+}
+
+.calendarday {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  font-size: 13px;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.calendarday.empty {
+  background: transparent;
+}
+
+.calendarday.booked {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+  font-weight: 600;
+}
+
+.calendarday.today {
+  border: 2px solid var(--color-steel);
+}
+
+.bookinglist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bookinglistitem {
+  padding: var(--spacing2) 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 14px;
+}
+
+.bookinglistitem:last-child {
+  border-bottom: none;
+}
