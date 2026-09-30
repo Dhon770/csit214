@@ -976,7 +976,7 @@ to:
 
 - [ ] **Step 3: Verify in browser**
 
-Reload `index.html`. As Community Member, expect three stat cards: "Your active bookings" = 2 (b1 approved, b2 pending — b3 belongs to a different requester but is still counted since there's no login; that's expected for this frontend-only demo), "Facilities available" = 5, "Total resources listed" = 6.
+Reload `index.html`. As Community Member, expect three stat cards: "Your active bookings" = 3 (b1 approved, b2 pending, b3 pending — all count since there's no login/per-user filtering; that's expected for this frontend-only demo), "Facilities available" = 5, "Total resources listed" = 6.
 
 Switch to Council Staff via the role switcher. Expect four stat cards: "Pending approvals" = 2, "Open maintenance tasks" = 2, "Active closures" = 1, "Approved bookings" = 1.
 
