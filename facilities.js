@@ -140,6 +140,11 @@ function renderdetailpanel() {
     return b.resourceId === resource.id && (b.status === "approved" || b.status === "pending");
   });
 
+  const bookinglinkhtml =
+    resource.status === "available"
+      ? '<p><a class="btn btnprimary" href="bookings.html?resource=' + resource.id + '">Request this booking</a></p>'
+      : "";
+
   panel.innerHTML =
     "<h2>" +
     resource.name +
@@ -156,6 +161,7 @@ function renderdetailpanel() {
     '">' +
     statuslabel(resource.status) +
     "</span>" +
+    bookinglinkhtml +
     "<p>" +
     resource.description +
     "</p>" +
