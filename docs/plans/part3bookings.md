@@ -251,6 +251,13 @@ function populateresourceoptions() {
   });
   const preselect = getqueryresourceid();
 
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Select a resource…";
+  placeholder.disabled = true;
+  placeholder.selected = !preselect;
+  select.appendChild(placeholder);
+
   resources.forEach(function (r) {
     const option = document.createElement("option");
     option.value = r.id;
