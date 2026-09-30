@@ -491,3 +491,35 @@ textarea {
 .bookinglistitem:last-child {
   border-bottom: none;
 }
+
+.confirmmessage {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  padding: var(--spacing3);
+  border-radius: var(--radius);
+  margin-bottom: var(--spacing4);
+}
+
+.errormessage {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  padding: var(--spacing3);
+  border-radius: var(--radius);
+  margin-bottom: var(--spacing4);
+}
+
+.conflictwarning {
+  color: var(--color-danger);
+  font-size: 12px;
+  margin-top: var(--spacing1);
+}
+
+.tablewrap {
+  overflow-x: auto;
+  margin-bottom: var(--spacing5);
+}
+
+.badgemuted {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
