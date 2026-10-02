@@ -523,3 +523,45 @@ textarea {
   background: var(--color-bg);
   color: var(--color-text-muted);
 }
+
+.barchart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing2);
+  margin-bottom: var(--spacing5);
+}
+
+.barrow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing3);
+}
+
+.barlabel {
+  width: 160px;
+  font-size: 13px;
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+
+.bartrack {
+  flex: 1;
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: 20px;
+}
+
+.barfill {
+  background: var(--color-steel);
+  height: 100%;
+  border-radius: var(--radius);
+}
+
+.barvalue {
+  width: 30px;
+  text-align: right;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
