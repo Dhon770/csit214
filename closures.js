@@ -129,3 +129,147 @@ function handleclosuresubmit(event) {
   populateclosureresourceoptions();
   renderallclosureviews();
 }
+
+function renderclosures() {
+  const body = document.getElementById("closuresbody");
+  const closures = getClosures().slice().sort(function (a, b) {
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+
+  if (closures.length === 0) {
+    body.innerHTML = '<tr><td colspan="5" class="emptystate">No closures scheduled.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = closures
+    .map(function (c) {
+      return (
+        "<tr>" +
+        "<td>" +
+        resourcename(c.resourceId) +
+        "</td>" +
+        "<td>" +
+        c.startDate +
+        " to " +
+        c.endDate +
+        "</td>" +
+        "<td>" +
+        c.reason +
+        "</td>" +
+        "<td>" +
+        c.affectedBookingIds.length +
+        "</td>" +
+        "<td>" +
+        '<button type="button" class="btn btnsecondary" data-reopen="' +
+        c.resourceId +
+        '">Reopen resource</button>' +
+        "</td>" +
+        "</tr>"
+      );
+    })
+    .join("");
+
+  body.querySelectorAll("[data-reopen]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      reopenresource(button.getAttribute("data-reopen"));
+    });
+  });
+}
+
+function renderaffectedbookings() {
+  const body = document.getElementById("affectedbody");
+  const closures = getClosures();
+  const bookings = getBookings();
+
+  const affectedids = [];
+  closures.forEach(function (c) {
+    c.affectedBookingIds.forEach(function (id) {
+      if (affectedids.indexOf(id) === -1) {
+        affectedids.push(id);
+      }
+    });
+  });
+
+  const affectedbookings = bookings.filter(function (b) {
+    return affectedids.indexOf(b.id) !== -1;
+  });
+
+  if (affectedbookings.length === 0) {
+    body.innerHTML = '<tr><td colspan="6" class="emptystate">No bookings are affected by a closure.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = affectedbookings
+    .map(function (b) {
+      const cancelbutton =
+        b.status === "pending" || b.status === "approved"
+          ? '<button type="button" class="btn btndanger" data-cancel="' + b.id + '">Cancel</button>'
+          : "";
+      return (
+        "<tr>" +
+        "<td>" +
+        resourcename(b.resourceId) +
+        "</td>" +
+        "<td>" +
+        b.requestedBy +
+        "</td>" +
+        "<td>" +
+        b.date +
+        "</td>" +
+        "<td>" +
+        b.startTime +
+        "–" +
+        b.endTime +
+        "</td>" +
+        '<td><span class="badge ' +
+        bookingstatusbadgeclass(b.status) +
+        '">' +
+        bookingstatuslabel(b.status) +
+        "</span></td>" +
+        "<td>" +
+        cancelbutton +
+        "</td>" +
+        "</tr>"
+      );
+    })
+    .join("");
+
+  body.querySelectorAll("[data-cancel]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      cancelaffectedbooking(button.getAttribute("data-cancel"));
+    });
+  });
+}
+
+function reopenresource(resourceid) {
+  setresourcestatus(resourceid, "available");
+  addAuditEntry("Council Staff", "resource_reopened", "Reopened " + resourcename(resourceid) + " after closure");
+  renderallclosureviews();
+}
+
+function cancelaffectedbooking(id) {
+  const bookings = getBookings();
+  const booking = bookings.filter(function (b) {
+    return b.id === id;
+  })[0];
+  if (!booking) {
+    return;
+  }
+  booking.status = "cancelled";
+  saveBookings(bookings);
+  addAuditEntry("Council Staff", "booking_cancelled", "Cancelled booking of " + resourcename(booking.resourceId) + " due to a closure");
+  renderallclosureviews();
+}
+
+function renderallclosureviews() {
+  renderclosures();
+  renderaffectedbookings();
+}
+
+function initclosurespage() {
+  populateclosureresourceoptions();
+  renderallclosureviews();
+  document.getElementById("closureform").addEventListener("submit", handleclosuresubmit);
+}
+
+document.addEventListener("DOMContentLoaded", initclosurespage);
