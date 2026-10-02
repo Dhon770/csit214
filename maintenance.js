@@ -103,3 +103,185 @@ function handlemaintenancesubmit(event) {
   populatemaintenanceresourceoptions();
   renderallmaintenanceviews();
 }
+
+function rendermyreports() {
+  const body = document.getElementById("myreportsbody");
+  const tasks = getMaintenanceTasks().slice().sort(function (a, b) {
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+
+  if (tasks.length === 0) {
+    body.innerHTML = '<tr><td colspan="4" class="emptystate">No maintenance reports yet.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = tasks
+    .map(function (t) {
+      return (
+        "<tr>" +
+        "<td>" +
+        resourcename(t.resourceId) +
+        "</td>" +
+        "<td>" +
+        t.description +
+        "</td>" +
+        "<td>" +
+        prioritylabel(t.priority) +
+        "</td>" +
+        '<td><span class="badge ' +
+        maintenancestatusbadgeclass(t.status) +
+        '">' +
+        maintenancestatuslabel(t.status) +
+        "</span></td>" +
+        "</tr>"
+      );
+    })
+    .join("");
+}
+
+function rendertaskqueue() {
+  const body = document.getElementById("taskqueuebody");
+  const tasks = getMaintenanceTasks().slice().sort(function (a, b) {
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+
+  if (tasks.length === 0) {
+    body.innerHTML = '<tr><td colspan="6" class="emptystate">No maintenance tasks yet.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = tasks
+    .map(function (t) {
+      let actionshtml = "";
+      if (t.status === "reported") {
+        actionshtml =
+          '<select data-assignselect="' +
+          t.id +
+          '">' +
+          STAFFMEMBERS.map(function (name) {
+            return '<option value="' + name + '">' + name + "</option>";
+          }).join("") +
+          "</select> " +
+          '<button type="button" class="btn btnprimary" data-assign="' +
+          t.id +
+          '">Assign</button>';
+      } else if (t.status === "assigned") {
+        actionshtml =
+          '<button type="button" class="btn btnsecondary" data-start="' +
+          t.id +
+          '">Start work</button> ' +
+          '<button type="button" class="btn btnprimary" data-resolve="' +
+          t.id +
+          '">Mark resolved</button>';
+      } else if (t.status === "in_progress") {
+        actionshtml = '<button type="button" class="btn btnprimary" data-resolve="' + t.id + '">Mark resolved</button>';
+      }
+
+      return (
+        "<tr>" +
+        "<td>" +
+        resourcename(t.resourceId) +
+        "</td>" +
+        "<td>" +
+        t.description +
+        "</td>" +
+        "<td>" +
+        prioritylabel(t.priority) +
+        "</td>" +
+        '<td><span class="badge ' +
+        maintenancestatusbadgeclass(t.status) +
+        '">' +
+        maintenancestatuslabel(t.status) +
+        "</span></td>" +
+        "<td>" +
+        (t.assignedTo ? t.assignedTo : "—") +
+        "</td>" +
+        "<td>" +
+        actionshtml +
+        "</td>" +
+        "</tr>"
+      );
+    })
+    .join("");
+
+  body.querySelectorAll("[data-assign]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      const id = button.getAttribute("data-assign");
+      const select = body.querySelector('[data-assignselect="' + id + '"]');
+      assigntask(id, select.value);
+    });
+  });
+  body.querySelectorAll("[data-start]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      starttask(button.getAttribute("data-start"));
+    });
+  });
+  body.querySelectorAll("[data-resolve]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      resolvetask(button.getAttribute("data-resolve"));
+    });
+  });
+}
+
+function assigntask(id, assignedto) {
+  const tasks = getMaintenanceTasks();
+  const task = tasks.filter(function (t) {
+    return t.id === id;
+  })[0];
+  if (!task) {
+    return;
+  }
+  task.status = "assigned";
+  task.assignedTo = assignedto;
+  saveMaintenanceTasks(tasks);
+  addAuditEntry("Council Staff", "maintenance_assigned", "Assigned task for " + resourcename(task.resourceId) + " to " + assignedto);
+  renderallmaintenanceviews();
+}
+
+function starttask(id) {
+  const tasks = getMaintenanceTasks();
+  const task = tasks.filter(function (t) {
+    return t.id === id;
+  })[0];
+  if (!task) {
+    return;
+  }
+  task.status = "in_progress";
+  saveMaintenanceTasks(tasks);
+  addAuditEntry("Council Staff", "maintenance_started", "Started work on task for " + resourcename(task.resourceId));
+  renderallmaintenanceviews();
+}
+
+function resolvetask(id) {
+  const tasks = getMaintenanceTasks();
+  const task = tasks.filter(function (t) {
+    return t.id === id;
+  })[0];
+  if (!task) {
+    return;
+  }
+  task.status = "resolved";
+  saveMaintenanceTasks(tasks);
+  addAuditEntry("Council Staff", "maintenance_resolved", "Resolved task for " + resourcename(task.resourceId));
+  renderallmaintenanceviews();
+}
+
+function renderallmaintenanceviews() {
+  const role = getRole();
+  document.getElementById("myreportssection").hidden = role !== "community";
+  document.getElementById("taskqueuesection").hidden = role !== "staff";
+
+  if (role === "community") {
+    rendermyreports();
+  } else {
+    rendertaskqueue();
+  }
+}
+
+function initmaintenancepage() {
+  populatemaintenanceresourceoptions();
+  renderallmaintenanceviews();
+  document.getElementById("maintenanceform").addEventListener("submit", handlemaintenancesubmit);
+}
+
+document.addEventListener("DOMContentLoaded", initmaintenancepage);
