@@ -15,6 +15,8 @@ There is no real login system. A role switcher in the top navigation bar lets yo
 - **Community Member** — search facilities, check availability, submit booking requests, view and cancel bookings, report maintenance issues.
 - **Council Staff** — everything above, plus: approve/reject booking requests, assign and update maintenance tasks, schedule temporary closures and manage affected bookings, and view utilisation reports and audit history.
 
+Switching roles reloads the page and changes which pages appear in the navigation bar — the Closures and Reports pages only appear once you've switched to Council Staff.
+
 ## Pages
 
 - `index.html` — Dashboard with role-specific summary stats.
