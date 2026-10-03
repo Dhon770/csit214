@@ -351,4 +351,6 @@ function initbookingspage() {
   document.getElementById("bookingform").addEventListener("submit", handlebookingsubmit);
 }
 
-document.addEventListener("DOMContentLoaded", initbookingspage);
+document.addEventListener("DOMContentLoaded", function () {
+  dataReady.then(initbookingspage);
+});

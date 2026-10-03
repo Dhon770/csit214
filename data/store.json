@@ -34,7 +34,7 @@
       "location": "Council Administration Building",
       "capacity": 20,
       "description": "Medium meeting room, suitable for workshops.",
-      "status": "closed"
+      "status": "available"
     },
     {
       "id": "r5",
@@ -43,7 +43,7 @@
       "location": "Equipment Store",
       "capacity": 1,
       "description": "Portable speaker and microphone set for outdoor events.",
-      "status": "maintenance"
+      "status": "available"
     },
     {
       "id": "r6",
@@ -64,7 +64,7 @@
       "startTime": "10:00",
       "endTime": "14:00",
       "purpose": "Community fundraiser",
-      "status": "approved",
+      "status": "cancelled",
       "createdAt": "2026-09-20T09:15:00"
     },
     {
@@ -75,7 +75,7 @@
       "startTime": "09:00",
       "endTime": "10:00",
       "purpose": "Neighbourhood watch meeting",
-      "status": "pending",
+      "status": "cancelled",
       "createdAt": "2026-09-28T13:40:00"
     },
     {
@@ -86,7 +86,7 @@
       "startTime": "12:00",
       "endTime": "16:00",
       "purpose": "Family birthday",
-      "status": "pending",
+      "status": "cancelled",
       "createdAt": "2026-09-29T11:05:00"
     },
     {
@@ -121,33 +121,68 @@
       "status": "resolved",
       "assignedTo": "Dave Whitfield",
       "createdAt": "2026-09-27T10:20:00"
-    }
-  ],
-  "closures": [
-    {
-      "id": "c1",
-      "resourceId": "r4",
-      "startDate": "2026-09-24",
-      "endDate": "2026-10-08",
-      "reason": "Air conditioning repair",
-      "affectedBookingIds": [],
-      "createdAt": "2026-09-25T14:05:00"
-    }
-  ],
-  "auditLog": [
-    {
-      "id": "a1791027741733",
-      "timestamp": "2026-10-03T11:42:21.733Z",
-      "actor": "Council Staff",
-      "action": "maintenance_assigned",
-      "details": "Assigned task for Portable PA System to Dave Whitfield"
     },
     {
-      "id": "a1791027739643",
-      "timestamp": "2026-10-03T11:42:19.643Z",
+      "id": "m1791029764282",
+      "resourceId": "r2",
+      "reportedBy": "john",
+      "description": "toilet exploded",
+      "priority": "medium",
+      "status": "resolved",
+      "assignedTo": "Dave Whitfield",
+      "createdAt": "2026-10-03T12:16:04.282Z"
+    }
+  ],
+  "closures": [],
+  "auditLog": [
+    {
+      "id": "a1791029803423",
+      "timestamp": "2026-10-03T12:16:43.423Z",
       "actor": "Council Staff",
       "action": "maintenance_resolved",
-      "details": "Resolved task for Meeting Room B"
+      "details": "Resolved task for Oak Park Pavilion"
+    },
+    {
+      "id": "a1791029764290",
+      "timestamp": "2026-10-03T12:16:04.290Z",
+      "actor": "john",
+      "action": "maintenance_reported",
+      "details": "Reported an issue with Oak Park Pavilion"
+    },
+    {
+      "id": "a1791029747991",
+      "timestamp": "2026-10-03T12:15:47.991Z",
+      "actor": "Priya Nair",
+      "action": "booking_cancelled",
+      "details": "Cancelled booking of Meeting Room A"
+    },
+    {
+      "id": "a1791029747196",
+      "timestamp": "2026-10-03T12:15:47.196Z",
+      "actor": "Sam Ostrowski",
+      "action": "booking_cancelled",
+      "details": "Cancelled booking of Oak Park Pavilion"
+    },
+    {
+      "id": "a1791029731988",
+      "timestamp": "2026-10-03T12:15:31.988Z",
+      "actor": "Council Staff",
+      "action": "resource_reopened",
+      "details": "Reopened Meeting Room A after closure"
+    },
+    {
+      "id": "a1791029692062",
+      "timestamp": "2026-10-03T12:14:52.062Z",
+      "actor": "Council Staff",
+      "action": "booking_approved",
+      "details": "Approved booking of Oak Park Pavilion for Sam Ostrowski"
+    },
+    {
+      "id": "a1791029680983",
+      "timestamp": "2026-10-03T12:14:40.983Z",
+      "actor": "Council Staff",
+      "action": "resource_reopened",
+      "details": "Reopened Meeting Room B after closure"
     },
     {
       "id": "a1",
@@ -171,5 +206,5 @@
       "details": "Assigned task m1 to Dave Whitfield"
     }
   ],
-  "role": "community"
+  "role": "staff"
 }

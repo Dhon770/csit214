@@ -36,7 +36,11 @@ function updateResourceMaintenanceStatus(resourceid) {
   }
 
   const activeclosure = getClosures().some(function (c) {
-    return c.resourceId === resourceid && c.endDate >= todaystring();
+    return (
+      c.resourceId === resourceid &&
+      c.startDate <= todaystring() &&
+      c.endDate >= todaystring()
+    );
   });
 
   if (activeclosure) {
@@ -332,4 +336,6 @@ function initmaintenancepage() {
   document.getElementById("maintenanceform").addEventListener("submit", handlemaintenancesubmit);
 }
 
-document.addEventListener("DOMContentLoaded", initmaintenancepage);
+document.addEventListener("DOMContentLoaded", function () {
+  dataReady.then(initmaintenancepage);
+});

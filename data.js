@@ -310,6 +310,38 @@ function setRole(role) {
   syncStateToBackend();
 }
 
+function isactiveclosure(closure, today) {
+  return Boolean(
+    closure &&
+    closure.startDate &&
+    closure.endDate &&
+    closure.startDate <= today &&
+    closure.endDate >= today
+  );
+}
+
+function refreshallresourcestatuses() {
+  const resources = getResources();
+  const closures = getClosures();
+  const maintenanceTasks = getMaintenanceTasks();
+  const today = new Date().toISOString().slice(0, 10);
+
+  resources.forEach(function (resource) {
+    const isclosed = closures.some(function (closure) {
+      return closure.resourceId === resource.id && isactiveclosure(closure, today);
+    });
+    const isundermaintenance = maintenanceTasks.some(function (task) {
+      return task.resourceId === resource.id && task.status !== "resolved";
+    });
+
+    resource.status = isclosed ? "closed" : isundermaintenance ? "maintenance" : "available";
+  });
+
+  localStorage.setItem(STORAGEKEYS.resources, JSON.stringify(resources));
+}
+
+const dataReady = initdata();
+
 async function initdata() {
   try {
     await syncStateFromBackend();
@@ -335,4 +367,7 @@ async function initdata() {
   if (!localStorage.getItem(STORAGEKEYS.role)) {
     localStorage.setItem(STORAGEKEYS.role, "community");
   }
+
+  refreshallresourcestatuses();
+  syncStateToBackend();
 }

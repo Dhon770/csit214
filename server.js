@@ -45,7 +45,7 @@ const defaultState = {
       location: 'Council Administration Building',
       capacity: 20,
       description: 'Medium meeting room, suitable for workshops.',
-      status: 'maintenance'
+      status: 'available'
     },
     {
       id: 'r5',
@@ -119,7 +119,7 @@ const defaultState = {
       reportedBy: 'Council Staff',
       description: 'Air conditioning unit not cooling, room too warm for use.',
       priority: 'high',
-      status: 'assigned',
+      status: 'resolved',
       assignedTo: 'Dave Whitfield',
       createdAt: '2026-09-25T14:00:00'
     },
@@ -129,8 +129,8 @@ const defaultState = {
       reportedBy: 'Jamie Lee',
       description: 'One microphone has a loose connector, crackles intermittently.',
       priority: 'medium',
-      status: 'reported',
-      assignedTo: null,
+      status: 'resolved',
+      assignedTo: 'Dave Whitfield',
       createdAt: '2026-09-27T10:20:00'
     }
   ],
@@ -139,7 +139,7 @@ const defaultState = {
       id: 'c1',
       resourceId: 'r4',
       startDate: '2026-09-24',
-      endDate: '2026-10-08',
+      endDate: '2026-10-01',
       reason: 'Air conditioning repair',
       affectedBookingIds: [],
       createdAt: '2026-09-25T14:05:00'
@@ -263,6 +263,33 @@ app.post('/api/bookings', (req, res) => {
   state.bookings.push(nextBooking);
   const written = writeData(state);
   res.status(201).json(written.bookings[written.bookings.length - 1]);
+});
+
+app.post('/api/closures', (req, res) => {
+  const closure = req.body || {};
+
+  if (!closure.resourceId || !closure.reason || !closure.startDate || !closure.endDate) {
+    return res.status(400).json({ message: 'Please fill in every closure field.' });
+  }
+
+  if (closure.endDate < closure.startDate) {
+    return res.status(400).json({ message: 'End date must be on or after the start date.' });
+  }
+
+  const state = readData();
+  const nextClosure = {
+    id: closure.id || `c${Date.now()}`,
+    resourceId: closure.resourceId,
+    startDate: closure.startDate,
+    endDate: closure.endDate,
+    reason: closure.reason,
+    affectedBookingIds: Array.isArray(closure.affectedBookingIds) ? closure.affectedBookingIds : [],
+    createdAt: closure.createdAt || new Date().toISOString()
+  };
+
+  state.closures.push(nextClosure);
+  const written = writeData(state);
+  res.status(201).json(written.closures[written.closures.length - 1]);
 });
 
 app.get('/api/:collection', (req, res) => {
