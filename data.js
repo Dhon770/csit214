@@ -16,8 +16,68 @@ function readjson(key, fallback) {
   }
 }
 
+async function syncStateToBackend() {
+  if (!window.fetch) {
+    return;
+  }
+
+  try {
+    const state = {
+      resources: getResources(),
+      bookings: getBookings(),
+      maintenanceTasks: getMaintenanceTasks(),
+      closures: getClosures(),
+      auditLog: getAuditLog(),
+      role: getRole()
+    };
+
+    await fetch('/api/state', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state)
+    });
+  } catch (e) {
+    // Ignore backend sync failures while the app is still offline or booting.
+  }
+}
+
+async function syncStateFromBackend() {
+  if (!window.fetch) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/state');
+    if (!response.ok) {
+      return;
+    }
+
+    const state = await response.json();
+    if (!state) {
+      return;
+    }
+
+    Object.entries(state).forEach(function ([key, value]) {
+      if (key === 'role') {
+        localStorage.setItem(STORAGEKEYS.role, String(value || 'community'));
+        return;
+      }
+
+      const storageKey = STORAGEKEYS[key];
+      if (storageKey) {
+        localStorage.setItem(storageKey, JSON.stringify(value || []));
+      }
+    });
+  } catch (e) {
+    // Fall back to localStorage-only behaviour if the backend is not available.
+  }
+}
+
 function writejson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+  if (key !== STORAGEKEYS.role) {
+    syncStateToBackend();
+  }
 }
 
 function defaultResources() {
@@ -247,9 +307,16 @@ function getRole() {
 
 function setRole(role) {
   localStorage.setItem(STORAGEKEYS.role, role);
+  syncStateToBackend();
 }
 
-function initdata() {
+async function initdata() {
+  try {
+    await syncStateFromBackend();
+  } catch (e) {
+    // Ignore sync failures; the app can still seed localStorage directly.
+  }
+
   if (!localStorage.getItem(STORAGEKEYS.resources)) {
     writejson(STORAGEKEYS.resources, defaultResources());
   }
