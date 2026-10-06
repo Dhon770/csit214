@@ -60,6 +60,5 @@ function renderNav() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  initdata();
-  renderNav();
+  dataReady.then(renderNav);
 });

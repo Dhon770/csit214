@@ -7,6 +7,54 @@ function resourcename(resourceid) {
   return resource ? resource.name : "Unknown resource";
 }
 
+function todaystring() {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() + "-" + mm + "-" + dd;
+}
+
+function setresourcestatus(resourceid, status) {
+  const resources = getResources();
+  const resource = resources.filter(function (r) {
+    return r.id === resourceid;
+  })[0];
+  if (!resource) {
+    return;
+  }
+  resource.status = status;
+  saveResources(resources);
+}
+
+function updateResourceMaintenanceStatus(resourceid) {
+  const resource = getResources().filter(function (r) {
+    return r.id === resourceid;
+  })[0];
+
+  if (!resource) {
+    return;
+  }
+
+  const activeclosure = getClosures().some(function (c) {
+    return (
+      c.resourceId === resourceid &&
+      c.startDate <= todaystring() &&
+      c.endDate >= todaystring()
+    );
+  });
+
+  if (activeclosure) {
+    setresourcestatus(resourceid, "closed");
+    return;
+  }
+
+  const hasOpenMaintenance = getMaintenanceTasks().some(function (task) {
+    return task.resourceId === resourceid && task.status !== "resolved";
+  });
+
+  setresourcestatus(resourceid, hasOpenMaintenance ? "maintenance" : "available");
+}
+
 function prioritylabel(priority) {
   if (priority === "high") {
     return "High";
@@ -95,6 +143,7 @@ function handlemaintenancesubmit(event) {
   const tasks = getMaintenanceTasks();
   tasks.push(task);
   saveMaintenanceTasks(tasks);
+  updateResourceMaintenanceStatus(resourceid);
   addAuditEntry(reportedby, "maintenance_reported", "Reported an issue with " + resourcename(resourceid));
 
   showmaintenancemessage("Thanks, your maintenance report has been submitted.", false);
@@ -234,6 +283,7 @@ function assigntask(id, assignedto) {
   task.status = "assigned";
   task.assignedTo = assignedto;
   saveMaintenanceTasks(tasks);
+  updateResourceMaintenanceStatus(task.resourceId);
   addAuditEntry("Council Staff", "maintenance_assigned", "Assigned task for " + resourcename(task.resourceId) + " to " + assignedto);
   renderallmaintenanceviews();
 }
@@ -248,6 +298,7 @@ function starttask(id) {
   }
   task.status = "in_progress";
   saveMaintenanceTasks(tasks);
+  updateResourceMaintenanceStatus(task.resourceId);
   addAuditEntry("Council Staff", "maintenance_started", "Started work on task for " + resourcename(task.resourceId));
   renderallmaintenanceviews();
 }
@@ -262,6 +313,7 @@ function resolvetask(id) {
   }
   task.status = "resolved";
   saveMaintenanceTasks(tasks);
+  updateResourceMaintenanceStatus(task.resourceId);
   addAuditEntry("Council Staff", "maintenance_resolved", "Resolved task for " + resourcename(task.resourceId));
   renderallmaintenanceviews();
 }
@@ -284,4 +336,6 @@ function initmaintenancepage() {
   document.getElementById("maintenanceform").addEventListener("submit", handlemaintenancesubmit);
 }
 
-document.addEventListener("DOMContentLoaded", initmaintenancepage);
+document.addEventListener("DOMContentLoaded", function () {
+  dataReady.then(initmaintenancepage);
+});

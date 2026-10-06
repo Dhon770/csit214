@@ -19,23 +19,23 @@ function populatelocations() {
 }
 
 function statusbadgeclass(status) {
-  if (status === "available") {
-    return "badgesuccess";
+  if (status === "closed") {
+    return "badgedanger";
   }
   if (status === "maintenance") {
     return "badgewarning";
   }
-  return "badgedanger";
+  return "badgesuccess";
 }
 
 function statuslabel(status) {
-  if (status === "available") {
-    return "Available";
+  if (status === "closed") {
+    return "Closed";
   }
   if (status === "maintenance") {
     return "Under maintenance";
   }
-  return "Closed";
+  return "Open";
 }
 
 function typelabel(type) {
@@ -271,4 +271,6 @@ function initfacilitiespage() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", initfacilitiespage);
+document.addEventListener("DOMContentLoaded", function () {
+  dataReady.then(initfacilitiespage);
+});

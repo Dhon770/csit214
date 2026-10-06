@@ -119,4 +119,6 @@ function initreportspage() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", initreportspage);
+document.addEventListener("DOMContentLoaded", function () {
+  dataReady.then(initreportspage);
+});

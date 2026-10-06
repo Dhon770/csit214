@@ -69,4 +69,6 @@ function renderdashboard() {
     .join("");
 }
 
-document.addEventListener("DOMContentLoaded", renderdashboard);
+document.addEventListener("DOMContentLoaded", function () {
+  dataReady.then(renderdashboard);
+});

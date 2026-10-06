@@ -1,3 +1,10 @@
+function todaystring() {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() + "-" + mm + "-" + dd;
+}
+
 function resourcename(resourceid) {
   const resource = getResources().filter(function (r) {
     return r.id === resourceid;
@@ -43,6 +50,41 @@ function setresourcestatus(resourceid, status) {
   saveResources(resources);
 }
 
+function isclosureactive(closure) {
+  if (!closure || !closure.startDate || !closure.endDate) {
+    return false;
+  }
+  const today = new Date();
+  const start = new Date(closure.startDate + "T00:00:00");
+  const end = new Date(closure.endDate + "T23:59:59");
+  return today >= start && today <= end;
+}
+
+function refreshresourcestatefromclosures(resourceid) {
+  const resource = getResources().filter(function (r) {
+    return r.id === resourceid;
+  })[0];
+
+  if (!resource) {
+    return;
+  }
+
+  const hasactiveclosure = getClosures().some(function (closure) {
+    return closure.resourceId === resourceid && isclosureactive(closure);
+  });
+
+  const hasopenmaintenance = getMaintenanceTasks().some(function (task) {
+    return task.resourceId === resourceid && task.status !== "resolved";
+  });
+
+  if (hasactiveclosure) {
+    setresourcestatus(resourceid, "closed");
+    return;
+  }
+
+  setresourcestatus(resourceid, hasopenmaintenance ? "maintenance" : "available");
+}
+
 function findaffectedbookingids(resourceid, startdate, enddate) {
   return getBookings()
     .filter(function (b) {
@@ -60,6 +102,7 @@ function findaffectedbookingids(resourceid, startdate, enddate) {
 
 function populateclosureresourceoptions() {
   const select = document.getElementById("resourceselect");
+  select.innerHTML = "";
 
   const placeholder = document.createElement("option");
   placeholder.value = "";
@@ -116,7 +159,7 @@ function handleclosuresubmit(event) {
   closures.push(closure);
   saveClosures(closures);
 
-  setresourcestatus(resourceid, "closed");
+  refreshresourcestatefromclosures(resourceid);
   addAuditEntry("Council Staff", "closure_created", "Scheduled closure of " + resourcename(resourceid) + " (" + reason + ")");
 
   const message =
@@ -242,7 +285,21 @@ function renderaffectedbookings() {
 }
 
 function reopenresource(resourceid) {
-  setresourcestatus(resourceid, "available");
+  const remainingclosures = getClosures().filter(function (closure) {
+    return closure.resourceId !== resourceid;
+  });
+
+  saveClosures(remainingclosures);
+
+  const hasactiveclosure = getClosures().some(function (closure) {
+    return closure.resourceId === resourceid && isclosureactive(closure);
+  });
+
+  const hasopenmaintenance = getMaintenanceTasks().some(function (task) {
+    return task.resourceId === resourceid && task.status !== "resolved";
+  });
+
+  setresourcestatus(resourceid, hasactiveclosure ? "closed" : hasopenmaintenance ? "maintenance" : "available");
   addAuditEntry("Council Staff", "resource_reopened", "Reopened " + resourcename(resourceid) + " after closure");
   renderallclosureviews();
 }
@@ -272,4 +329,6 @@ function initclosurespage() {
   document.getElementById("closureform").addEventListener("submit", handleclosuresubmit);
 }
 
-document.addEventListener("DOMContentLoaded", initclosurespage);
+document.addEventListener("DOMContentLoaded", function () {
+  dataReady.then(initclosurespage);
+});
